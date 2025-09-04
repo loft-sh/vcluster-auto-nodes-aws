@@ -8,6 +8,11 @@ terraform {
   }
 }
 
+locals {
+  ami_id = try(var.vcluster.requirements["ami_id"], data.aws_ami.ubuntu.id)
+}
+
+
 provider "aws" {
   region = var.vcluster.requirements["region"]
 
@@ -27,7 +32,7 @@ data "aws_ami" "ubuntu" {
 
 # VM
 resource "aws_instance" "this" {
-  ami                         = data.aws_ami.ubuntu.id
+  ami                         = local.ami_id
   instance_type               = var.vcluster.nodeType.spec.properties["instance-type"]
   subnet_id                   = var.vcluster.nodeEnvironment.outputs["private_subnet_id"]
   vpc_security_group_ids      = [var.vcluster.nodeEnvironment.outputs["security_group_id"]]
