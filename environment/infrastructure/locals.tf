@@ -7,6 +7,9 @@ locals {
 
   vcluster_name      = nonsensitive(var.vcluster.instance.metadata.name)
   vcluster_namespace = nonsensitive(var.vcluster.instance.metadata.namespace)
+  cluster_tag = {
+    format("kubernetes.io/cluster/%s", local.vcluster_name) = "owned"
+  }
   vpc_name           = format("%s-%s", local.vcluster_name, random_id.vpc_suffix.hex)
 
   node_role_name    = format("%s-node-role-%s", local.vcluster_name, random_id.vpc_suffix.hex)

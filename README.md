@@ -5,6 +5,9 @@
 ```yaml
 # vcluster.yaml
 controlPlane:
+  advanced:
+    cloudControllerManager:
+      enabled: false # disable vcluster CCM
   service:
     spec:
      type: LoadBalancer
@@ -32,7 +35,7 @@ Terraform modules for Auto Nodes on AWS to dynamically provision EC2 instances f
 
 This quickstart NodeProvider isolates all nodes into separate VPCs by default.
 
-Per virtual cluster, it'll create (see [Environment](./environment/)):
+Per virtual cluster, it'll create (see [Environment](./environment/infrastructure)):
 
 - A VPC
 - A public subnet in 2 AZs
@@ -101,6 +104,9 @@ This vcluster.yaml file defines a Private Node Virtual Cluster with Auto Nodes e
 ```yaml
 # vcluster.yaml
 controlPlane:
+  advanced:
+    cloudControllerManager:
+      enabled: false # disable vcluster CCM
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
@@ -126,3 +132,16 @@ privateNodes:
 Create the virtual cluster through the vCluster Platform UI or the vCluster CLI:
 
  `vcluster platform create vcluster aws-private-nodes -f ./vcluster.yaml --project default`
+
+## Resource Cleanup Before Cluster Removal
+
+When decommissioning a cluster, it is important that all resources created by **Cloud Controller Manager (CCM)** and **Container Storage Interface (CSI)** are cleaned up manually.  
+This includes, but is not limited to:
+
+- **CCM-managed resources**
+  - Services
+
+- **CSI-managed resources**
+  - PersistentVolumes (PVs)
+
+Failure to perform this cleanup may result in **orphaned cloud resources**.

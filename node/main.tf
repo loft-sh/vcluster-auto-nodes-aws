@@ -30,7 +30,7 @@ module "validation" {
 
 resource "random_integer" "subnet_index" {
   min = 0
-  max = length(var.vcluster.nodeEnvironment.outputs["private_subnet_ids"]) - 1
+  max = length(var.vcluster.nodeEnvironment.outputs.infrastructure["private_subnet_ids"]) - 1
 }
 
 resource "aws_instance" "this" {
@@ -50,10 +50,17 @@ resource "aws_instance" "this" {
     encrypted             = true
   }
 
+  private_dns_name_options {
+    hostname_type = "resource-name"
+  }
+
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "required"
+    http_put_response_hop_limit = 1 # Restrict IMDS to host network
   }
+
+  iam_instance_profile = local.instance_profile_name
 
   tags = {
     Name = format("%s-worker-node", local.vcluster_name)

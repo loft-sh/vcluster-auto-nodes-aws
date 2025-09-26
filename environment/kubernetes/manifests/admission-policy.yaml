@@ -1,0 +1,25 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: hostnetwork-allowed-only-in-system
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE","UPDATE"]
+        resources: ["pods"]
+  validations:
+    - expression: |
+        request.namespace in ['kube-system','kube-flannel']
+        || !(has(object.spec.hostNetwork) && object.spec.hostNetwork == true)
+      message: "hostNetwork is allowed only in kube-system and kube-flannel."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: hostnetwork-allowed-only-in-system-binding
+spec:
+  policyName: hostnetwork-allowed-only-in-system
+  validationActions: ["Deny"]

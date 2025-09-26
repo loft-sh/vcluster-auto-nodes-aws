@@ -16,9 +16,12 @@ provider "aws" {
   region = module.validation.region
 
   default_tags {
-    tags = {
-      "vcluster:name"      = local.vcluster_name
-      "vcluster:namespace" = local.vcluster_namespace
-    }
+    tags = merge(
+      local.cluster_tag,
+      {
+        "vcluster:name"      = local.vcluster_name
+        "vcluster:namespace" = local.vcluster_namespace
+      }
+    )
   }
 }

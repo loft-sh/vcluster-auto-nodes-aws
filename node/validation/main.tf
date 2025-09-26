@@ -24,4 +24,3 @@ resource "null_resource" "validate" {
 output "region" {
   value = local.region
 }
-
