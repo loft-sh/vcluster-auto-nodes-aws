@@ -25,7 +25,7 @@ data "aws_ami" "ami" {
 
 module "validation" {
   source = "./validation"
-  region = var.vcluster.nodeType.spec.properties["region"]
+  region = var.vcluster.properties["region"]
 }
 
 resource "random_integer" "subnet_index" {
