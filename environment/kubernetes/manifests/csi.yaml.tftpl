@@ -688,6 +688,7 @@ spec:
       dnsPolicy: Default
       nodeSelector:
         kubernetes.io/os: linux
+        vcluster.loft.sh/node-provider: ${node_provider_name}
       priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 1000
@@ -877,6 +878,7 @@ spec:
       dnsPolicy: Default
       nodeSelector:
         kubernetes.io/os: linux
+        vcluster.loft.sh/node-provider: ${node_provider_name}
       priorityClassName: system-node-critical
       securityContext:
         fsGroup: 0

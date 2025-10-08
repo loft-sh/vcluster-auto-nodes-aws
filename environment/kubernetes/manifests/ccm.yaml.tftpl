@@ -99,6 +99,8 @@ spec:
       dnsPolicy: Default
       serviceAccountName: cloud-controller-manager
       priorityClassName: system-cluster-critical
+      nodeSelector:
+        vcluster.loft.sh/node-provider: ${node_provider_name}
       containers:
         - name: aws-cloud-controller-manager
           image: registry.k8s.io/provider-aws/cloud-controller-manager:v1.34.0
