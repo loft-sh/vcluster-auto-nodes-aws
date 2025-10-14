@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: cloud-controller-manager
+  name: ${node_provider_name}-cloud-controller-manager
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: system:cloud-controller-manager
+  name: system:${node_provider_name}-cloud-controller-manager
 rules:
   - apiGroups: [""]
     resources: ["events"]
@@ -44,7 +44,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: cloud-controller-manager:apiserver-authentication-reader
+  name: ${node_provider_name}-cloud-controller-manager:${node_provider_name}-apiserver-authentication-reader
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -52,26 +52,26 @@ roleRef:
   name: extension-apiserver-authentication-reader
 subjects:
   - kind: ServiceAccount
-    name: cloud-controller-manager
+    name: ${node_provider_name}-cloud-controller-manager
     namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: system:cloud-controller-manager
+  name: system:${node_provider_name}-cloud-controller-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: system:cloud-controller-manager
+  name: system:${node_provider_name}-cloud-controller-manager
 subjects:
   - kind: ServiceAccount
-    name: cloud-controller-manager
+    name: ${node_provider_name}-cloud-controller-manager
     namespace: kube-system
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: aws-cloud-config
+  name: ${node_provider_name}-cloud-config
   namespace: kube-system
 data:
   cloud-config: |
@@ -81,23 +81,23 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aws-cloud-controller-manager
+  name: ${node_provider_name}-cloud-controller-manager
   namespace: kube-system
   labels:
-    k8s-app: aws-cloud-controller-manager
+    k8s-app: ${node_provider_name}-cloud-controller-manager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: aws-cloud-controller-manager
+      k8s-app: ${node_provider_name}-cloud-controller-manager
   template:
     metadata:
       labels:
-        k8s-app: aws-cloud-controller-manager
+        k8s-app: ${node_provider_name}-cloud-controller-manager
     spec:
       hostNetwork: true
       dnsPolicy: Default
-      serviceAccountName: cloud-controller-manager
+      serviceAccountName: ${node_provider_name}-cloud-controller-manager
       priorityClassName: system-cluster-critical
       nodeSelector:
         vcluster.loft.sh/node-provider: ${node_provider_name}
@@ -108,8 +108,10 @@ spec:
             - --v=2
             - --cloud-provider=aws
             - --cloud-config=/etc/kubernetes/cloud-config
-            - --use-service-account-credentials=false
+            - --use-service-account-credentials=true
             - --configure-cloud-routes=false
+            - --leader-elect-resource-name=${node_provider_name}-cloud-controller-manager
+            - --cluster-name=${vcluster_name}
           resources:
             requests:
               cpu: "200m"
@@ -120,7 +122,7 @@ spec:
       volumes:
         - name: cloud-config
           configMap:
-            name: aws-cloud-config
+            name: ${node_provider_name}-cloud-config
             items:
               - key: cloud-config
                 path: cloud-config

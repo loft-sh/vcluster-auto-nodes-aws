@@ -1,7 +1,7 @@
 resource "aws_security_group" "workers" {
-  name        = format("%s-workers-sg", local.vcluster_name)
+  name        = format("%s-workers-sg", local.vcluster_unique_name)
   description = "Security group for worker nodes: allow intra-VPC traffic, kubelet, NodePort, and outbound internet"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = module.vpc[local.region].vpc_id
 
   # Allow all outbound
   egress {
@@ -75,6 +75,6 @@ resource "aws_security_group" "workers" {
   }
 
   tags = {
-    Name = format("%s-workers-sg", local.vcluster_name)
+    name = format("%s-workers-sg", local.vcluster_unique_name)
   }
 }

@@ -1,5 +1,5 @@
 ###############################
-# EC2 role and instance profile
+# IAM role and instance profile
 ###############################
 
 data "aws_iam_policy_document" "assume_ec2" {
@@ -14,14 +14,14 @@ data "aws_iam_policy_document" "assume_ec2" {
   }
 }
 
-resource "aws_iam_role" "allow_ccm_csi_ecr" {
-  name               = format("%s-allow_ccm_csi_ecr", local.vcluster_name)
+resource "aws_iam_role" "vcluster_node" {
+  name               = format("%s-vcluster-node", local.vcluster_unique_name)
   assume_role_policy = data.aws_iam_policy_document.assume_ec2.json
 }
 
-resource "aws_iam_instance_profile" "allow_ccm_csi_ecr" {
-  name = format("%s-allow_ccm_csi_ecr", local.vcluster_name)
-  role = aws_iam_role.allow_ccm_csi_ecr.name
+resource "aws_iam_instance_profile" "vcluster_node" {
+  name = aws_iam_role.vcluster_node.name
+  role = aws_iam_role.vcluster_node.name
 }
 
 ###############################
@@ -90,14 +90,15 @@ data "aws_iam_policy_document" "ccm" {
 }
 
 resource "aws_iam_policy" "ccm" {
-  name        = format("%s-ccm", local.vcluster_name)
-  description = "Permissions for CCM"
-  policy      = data.aws_iam_policy_document.ccm.json
+  for_each = local.ccm_enabled ? { enabled = true } : {}
+  name     = format("%s-ccm", local.vcluster_unique_name)
+  policy   = data.aws_iam_policy_document.ccm.json
 }
 
 resource "aws_iam_role_policy_attachment" "ccm" {
-  role       = aws_iam_role.allow_ccm_csi_ecr.name
-  policy_arn = aws_iam_policy.ccm.arn
+  for_each   = aws_iam_policy.ccm
+  role       = aws_iam_role.vcluster_node.name
+  policy_arn = each.value.arn
 }
 
 ###############################
@@ -123,13 +124,12 @@ data "aws_iam_policy_document" "ecr" {
 }
 
 resource "aws_iam_policy" "ecr" {
-  name        = format("%s-ecr", local.vcluster_name)
-  description = "Permissions for ECR"
-  policy      = data.aws_iam_policy_document.ecr.json
+  name   = format("%s-ecr", local.vcluster_unique_name)
+  policy = data.aws_iam_policy_document.ecr.json
 }
 
 resource "aws_iam_role_policy_attachment" "ecr" {
-  role       = aws_iam_role.allow_ccm_csi_ecr.name
+  role       = aws_iam_role.vcluster_node.name
   policy_arn = aws_iam_policy.ecr.arn
 }
 
@@ -188,8 +188,8 @@ data "aws_iam_policy_document" "ebs_csi" {
 
   # CreateTags only when creating volume/snapshot
   statement {
-    effect = "Allow"
-    actions   = ["ec2:CreateTags"]
+    effect  = "Allow"
+    actions = ["ec2:CreateTags"]
     resources = [
       "arn:aws:ec2:*:*:volume/*",
       "arn:aws:ec2:*:*:snapshot/*",
@@ -203,7 +203,7 @@ data "aws_iam_policy_document" "ebs_csi" {
 
   # Allow DeleteTags on volumes/snapshots
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["ec2:DeleteTags"]
     resources = [
       "arn:aws:ec2:*:*:volume/*",
@@ -320,13 +320,14 @@ data "aws_iam_policy_document" "ebs_csi" {
   }
 }
 
-resource "aws_iam_policy" "ebs_csi" {
-  name        = format("%s-ebs", local.vcluster_name)
-  description = "Permissions for EBS CSI driver"
-  policy      = data.aws_iam_policy_document.ebs_csi.json
+resource "aws_iam_policy" "csi" {
+  for_each = local.csi_enabled ? { enabled = true } : {}
+  name     = format("%s-csi", local.vcluster_unique_name)
+  policy   = data.aws_iam_policy_document.ebs_csi.json
 }
 
-resource "aws_iam_role_policy_attachment" "ebs_csi" {
-  role       = aws_iam_role.allow_ccm_csi_ecr.name
-  policy_arn = aws_iam_policy.ebs_csi.arn
+resource "aws_iam_role_policy_attachment" "csi" {
+  for_each   = aws_iam_policy.csi
+  role       = aws_iam_role.vcluster_node.name
+  policy_arn = each.value.arn
 }

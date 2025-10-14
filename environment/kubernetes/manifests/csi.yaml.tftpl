@@ -3,8 +3,8 @@ automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-controller-sa
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-controller-sa
   namespace: kube-system
 ---
 apiVersion: v1
@@ -12,16 +12,16 @@ automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-node-sa
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-node-sa
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-leases-role
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-leases-role
   namespace: kube-system
 rules:
 - apiGroups:
@@ -40,8 +40,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-node-role
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-node-role
 rules:
 - apiGroups:
   - ""
@@ -71,8 +71,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-external-attacher-role
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-external-attacher-role
 rules:
 - apiGroups:
   - ""
@@ -111,8 +111,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-external-provisioner-role
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-external-provisioner-role
 rules:
 - apiGroups:
   - ""
@@ -201,8 +201,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-external-resizer-role
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-external-resizer-role
 rules:
 - apiGroups:
   - ""
@@ -258,8 +258,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-external-snapshotter-role
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-external-snapshotter-role
 rules:
 - apiGroups:
   - ""
@@ -326,107 +326,107 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-leases-rolebinding
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-leases-rolebinding
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: ebs-csi-leases-role
+  name: ${node_provider_name}-ebs-csi-leases-role
 subjects:
 - kind: ServiceAccount
-  name: ebs-csi-controller-sa
+  name: ${node_provider_name}-ebs-csi-controller-sa
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-attacher-binding
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-attacher-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ebs-external-attacher-role
+  name: ${node_provider_name}-ebs-external-attacher-role
 subjects:
 - kind: ServiceAccount
-  name: ebs-csi-controller-sa
+  name: ${node_provider_name}-ebs-csi-controller-sa
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-node-getter-binding
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-node-getter-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ebs-csi-node-role
+  name: ${node_provider_name}-ebs-csi-node-role
 subjects:
 - kind: ServiceAccount
-  name: ebs-csi-node-sa
+  name: ${node_provider_name}-ebs-csi-node-sa
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-provisioner-binding
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-provisioner-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ebs-external-provisioner-role
+  name: ${node_provider_name}-ebs-external-provisioner-role
 subjects:
 - kind: ServiceAccount
-  name: ebs-csi-controller-sa
+  name: ${node_provider_name}-ebs-csi-controller-sa
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-resizer-binding
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-resizer-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ebs-external-resizer-role
+  name: ${node_provider_name}-ebs-external-resizer-role
 subjects:
 - kind: ServiceAccount
-  name: ebs-csi-controller-sa
+  name: ${node_provider_name}-ebs-csi-controller-sa
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-snapshotter-binding
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-snapshotter-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ebs-external-snapshotter-role
+  name: ${node_provider_name}-ebs-external-snapshotter-role
 subjects:
 - kind: ServiceAccount
-  name: ebs-csi-controller-sa
+  name: ${node_provider_name}-ebs-csi-controller-sa
   namespace: kube-system
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-controller
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-controller
   namespace: kube-system
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: ebs-csi-controller
-      app.kubernetes.io/name: aws-ebs-csi-driver
+      app: ${node_provider_name}-ebs-csi-controller
+      app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
   strategy:
     rollingUpdate:
       maxUnavailable: 1
@@ -434,8 +434,8 @@ spec:
   template:
     metadata:
       labels:
-        app: ebs-csi-controller
-        app.kubernetes.io/name: aws-ebs-csi-driver
+        app: ${node_provider_name}-ebs-csi-controller
+        app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
     spec:
       affinity:
         nodeAffinity:
@@ -457,7 +457,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - ebs-csi-controller
+                  - ${node_provider_name}-ebs-csi-controller
               topologyKey: kubernetes.io/hostname
             weight: 100
       containers:
@@ -549,7 +549,7 @@ spec:
         - --kube-api-burst=100
         - --worker-threads=100
         - --retry-interval-max=30m
-        - --feature-gates=VolumeAttributesClass=false
+        - --feature-gates=VolumeAttributesClass=true
         env:
         - name: ADDRESS
           value: /var/lib/csi/sockets/pluginproxy/csi.sock
@@ -695,7 +695,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: ebs-csi-controller-sa
+      serviceAccountName: ${node_provider_name}-ebs-csi-controller-sa
       tolerations:
       - key: CriticalAddonsOnly
         operator: Exists
@@ -710,34 +710,34 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-controller
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-controller
   namespace: kube-system
 spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      app: ebs-csi-controller
-      app.kubernetes.io/name: aws-ebs-csi-driver
+      app: ${node_provider_name}-ebs-csi-controller
+      app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
-  name: ebs-csi-node
+    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+  name: ${node_provider_name}-ebs-csi-node
   namespace: kube-system
 spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: ebs-csi-node
-      app.kubernetes.io/name: aws-ebs-csi-driver
+      app: ${node_provider_name}-ebs-csi-node
+      app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
   template:
     metadata:
       labels:
-        app: ebs-csi-node
-        app.kubernetes.io/name: aws-ebs-csi-driver
+        app: ${node_provider_name}-ebs-csi-node
+        app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
     spec:
       affinity:
         nodeAffinity:
@@ -885,7 +885,7 @@ spec:
         runAsGroup: 0
         runAsNonRoot: false
         runAsUser: 0
-      serviceAccountName: ebs-csi-node-sa
+      serviceAccountName: ${node_provider_name}-ebs-csi-node-sa
       terminationGracePeriodSeconds: 30
       tolerations:
       - operator: Exists
@@ -927,11 +927,11 @@ spec:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: ebs-sc
+  name: ${node_provider_name}-ebs-default
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
 parameters:
-  csi.storage.k8s.io/fstype: xfs
-  type: io1
-  iopsPerGB: "50"
+  type: gp3
   encrypted: "true"
+  csi.storage.k8s.io/fstype: xfs

@@ -1,20 +1,39 @@
 locals {
-  manifest_files = [
-    "${path.module}/manifests/admission-policy.yaml.tftpl",
-    "${path.module}/manifests/ccm.yaml.tftpl",
-    "${path.module}/manifests/csi.yaml.tftpl",
-  ]
+  ccm_enabled = try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), true)
+  csi_enabled = try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), true)
+
+  node_provider_name = nonsensitive(var.vcluster.nodeProvider.metadata.name)
+  vcluster_name      = nonsensitive(var.vcluster.instance.metadata.name)
+}
+
+module "kubernetes_apply_admission_policy" {
+  source = "./apply"
+
+  manifest_file = "${path.module}/manifests/admission-policy.yaml.tftpl"
   template_vars = {
-    node_provider_name = nonsensitive(var.vcluster.nodeProvider.metadata.name)
+    node_provider_name = local.node_provider_name
   }
 }
 
-locals {
-  files_indexed = { for i, f in local.manifest_files : i => f }
+module "kubernetes_apply_ccm" {
+  source = "./apply"
+
+  for_each = local.ccm_enabled ? { "enabled" = true } : {}
+
+  manifest_file = "${path.module}/manifests/ccm.yaml.tftpl"
+  template_vars = {
+    node_provider_name = local.node_provider_name
+    vcluster_name      = local.vcluster_name
+  }
 }
-module "manifests" {
-  source        = "./apply"
-  for_each      = local.files_indexed
-  manifest_file = each.value
-  template_vars = local.template_vars
+
+module "kubernetes_apply_csi" {
+  source = "./apply"
+
+  for_each = local.csi_enabled ? { "enabled" = true } : {}
+
+  manifest_file = "${path.module}/manifests/csi.yaml.tftpl"
+  template_vars = {
+    node_provider_name = local.node_provider_name
+  }
 }

@@ -55,14 +55,14 @@ resource "aws_instance" "this" {
   }
 
   metadata_options {
-    http_endpoint = "enabled"
-    http_tokens   = "required"
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
     http_put_response_hop_limit = 1 # Restrict IMDS to host network
   }
 
   iam_instance_profile = local.instance_profile_name
 
   tags = {
-    Name = format("%s-worker-node", local.vcluster_name)
+    name = format("%s-worker-node", local.vcluster_unique_name)
   }
 }

@@ -2,20 +2,23 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-resource "random_id" "vpc_suffix" {
+resource "random_id" "suffix" {
   byte_length = 4
 }
 
 module "validation" {
   source = "./validation"
-  region = var.vcluster.properties["region"]
+  region = local.region
 }
 
 module "vpc" {
+  # Keep VPC as map to trigger the whole module recreation in case of region change
+  for_each = { (local.region) = true }
+
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 6.0"
 
-  name = local.vpc_name
+  name = local.vcluster_unique_name
   cidr = local.vpc_cidr_block
 
   azs                    = local.azs
@@ -34,7 +37,6 @@ module "vpc" {
   }
 
   tags = {
-    Name = local.vpc_name
+    name = local.vcluster_unique_name
   }
 }
-

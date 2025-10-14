@@ -1,7 +1,7 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicy
 metadata:
-  name: hostnetwork-allowed-only-in-system
+  name: ${node_provider_name}-hostnetwork-allowed
 spec:
   failurePolicy: Fail
   matchConstraints:
@@ -19,7 +19,7 @@ spec:
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
 metadata:
-  name: hostnetwork-allowed-only-in-system-binding
+  name: ${node_provider_name}-hostnetwork-allowed
 spec:
-  policyName: hostnetwork-allowed-only-in-system
+  policyName: ${node_provider_name}-hostnetwork-allowed
   validationActions: ["Deny"]
