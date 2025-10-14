@@ -135,3 +135,6 @@ spec:
           effect: NoExecute
         - key: node.kubernetes.io/not-ready
           effect: NoSchedule
+        - key: "vcluster.com/cleanup"
+          operator: "Exists"
+          effect: "NoExecute"
