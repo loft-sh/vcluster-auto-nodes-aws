@@ -112,6 +112,7 @@ spec:
             - --configure-cloud-routes=false
             - --leader-elect-resource-name=${node_provider_name}-cloud-controller-manager
             - --cluster-name=${vcluster_name}
+            - --controllers=${controllers}
           resources:
             requests:
               cpu: "200m"
