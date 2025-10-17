@@ -702,6 +702,9 @@ spec:
       - effect: NoExecute
         operator: Exists
         tolerationSeconds: 300
+      - key: "vcluster.com/cleanup"
+        operator: "Exists"
+        effect: "NoExecute"
       volumes:
       - emptyDir: {}
         name: socket-dir
