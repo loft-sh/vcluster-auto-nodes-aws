@@ -13,6 +13,11 @@ output "public_subnet_ids" {
   value       = module.vpc[local.region].public_subnets
 }
 
+output "availability_zones" {
+  description = "A list of availability zones"
+  value       = data.aws_availability_zones.available.names
+}
+
 output "security_group_id" {
   description = "Security group id to attach to worker nodes"
   value       = aws_security_group.workers.id

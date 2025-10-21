@@ -938,3 +938,12 @@ parameters:
   type: gp3
   encrypted: "true"
   csi.storage.k8s.io/fstype: xfs
+%{ if length(jsondecode(availability_zones)) > 0 ~}
+allowedTopologies:
+- matchLabelExpressions:
+  - key: topology.ebs.csi.aws.com/zone
+    values:
+%{ for az in jsondecode(availability_zones) ~}
+    - ${az}
+%{ endfor ~}
+%{ endif ~}

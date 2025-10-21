@@ -3,6 +3,8 @@ locals {
   ccm_lb_enabled = try(tobool(var.vcluster.properties["vcluster.com/ccm-lb-enabled"]), true)
   csi_enabled    = try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), true)
 
+  availability_zones = nonsensitive(var.vcluster.nodeEnvironment.outputs.infrastructure["availability_zones"])
+
   node_provider_name = nonsensitive(var.vcluster.nodeProvider.metadata.name)
   vcluster_name      = nonsensitive(var.vcluster.instance.metadata.name)
 }
@@ -37,5 +39,6 @@ module "kubernetes_apply_csi" {
   manifest_file = "${path.module}/manifests/csi.yaml.tftpl"
   template_vars = {
     node_provider_name = local.node_provider_name
+    availability_zones = jsonencode(local.availability_zones)
   }
 }
