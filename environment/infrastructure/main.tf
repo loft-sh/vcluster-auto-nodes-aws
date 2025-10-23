@@ -16,9 +16,9 @@ module "vpc" {
   for_each = { (local.region) = true }
 
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 6.0"
+  version = "~> 6.5.0"
 
-  name = local.vcluster_unique_name
+  name = format("vcluster-vpc-%s", random_id.suffix.hex)
   cidr = local.vpc_cidr_block
 
   azs                    = local.azs
@@ -37,6 +37,6 @@ module "vpc" {
   }
 
   tags = {
-    name = local.vcluster_unique_name
+    name = format("vcluster-vpc-%s", random_id.suffix.hex)
   }
 }

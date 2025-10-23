@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "assume_ec2" {
 }
 
 resource "aws_iam_role" "vcluster_node" {
-  name               = format("%s-vcluster-node", local.vcluster_unique_name)
+  name               = format("vcluster-node-%s", random_id.suffix.hex)
   assume_role_policy = data.aws_iam_policy_document.assume_ec2.json
 }
 
@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "ccm" {
 
 resource "aws_iam_policy" "ccm" {
   for_each = local.ccm_enabled ? { enabled = true } : {}
-  name     = format("%s-ccm", local.vcluster_unique_name)
+  name     = format("vcluster-ccm-%s", random_id.suffix.hex)
   policy   = data.aws_iam_policy_document.ccm.json
 }
 
@@ -124,7 +124,7 @@ data "aws_iam_policy_document" "ecr" {
 }
 
 resource "aws_iam_policy" "ecr" {
-  name   = format("%s-ecr", local.vcluster_unique_name)
+  name   = format("vcluster-ecr-%s", random_id.suffix.hex)
   policy = data.aws_iam_policy_document.ecr.json
 }
 
@@ -322,7 +322,7 @@ data "aws_iam_policy_document" "ebs_csi" {
 
 resource "aws_iam_policy" "csi" {
   for_each = local.csi_enabled ? { enabled = true } : {}
-  name     = format("%s-csi", local.vcluster_unique_name)
+  name     = format("vcluster-csi-%s", random_id.suffix.hex)
   policy   = data.aws_iam_policy_document.ebs_csi.json
 }
 

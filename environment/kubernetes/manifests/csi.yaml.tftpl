@@ -2,26 +2,32 @@ apiVersion: v1
 automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-controller-sa
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-controller-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: v1
 automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-node-sa
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-node-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-leases-role
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-leases-role-${suffix}
   namespace: kube-system
 rules:
 - apiGroups:
@@ -39,9 +45,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-node-role
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-node-role-${suffix}
 rules:
 - apiGroups:
   - ""
@@ -70,9 +78,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-external-attacher-role
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-external-attacher-role-${suffix}
 rules:
 - apiGroups:
   - ""
@@ -110,9 +120,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-external-provisioner-role
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-external-provisioner-role-${suffix}
 rules:
 - apiGroups:
   - ""
@@ -200,9 +212,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-external-resizer-role
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-external-resizer-role-${suffix}
 rules:
 - apiGroups:
   - ""
@@ -257,9 +271,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-external-snapshotter-role
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-external-snapshotter-role-${suffix}
 rules:
 - apiGroups:
   - ""
@@ -325,108 +341,122 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-leases-rolebinding
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-leases-role-binding-${suffix}
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: ${node_provider_name}-ebs-csi-leases-role
+  name: ebs-csi-leases-role-${suffix}
 subjects:
 - kind: ServiceAccount
-  name: ${node_provider_name}-ebs-csi-controller-sa
+  name: ebs-csi-controller-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-attacher-binding
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-attacher-binding-${suffix}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ${node_provider_name}-ebs-external-attacher-role
+  name: ebs-external-attacher-role-${suffix}
 subjects:
 - kind: ServiceAccount
-  name: ${node_provider_name}-ebs-csi-controller-sa
+  name: ebs-csi-controller-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-node-getter-binding
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-node-getter-binding-${suffix}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ${node_provider_name}-ebs-csi-node-role
+  name: ebs-csi-node-role-${suffix}
 subjects:
 - kind: ServiceAccount
-  name: ${node_provider_name}-ebs-csi-node-sa
+  name: ebs-csi-node-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-provisioner-binding
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-provisioner-binding-${suffix}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ${node_provider_name}-ebs-external-provisioner-role
+  name: ebs-external-provisioner-role-${suffix}
 subjects:
 - kind: ServiceAccount
-  name: ${node_provider_name}-ebs-csi-controller-sa
+  name: ebs-csi-controller-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-resizer-binding
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-resizer-binding-${suffix}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ${node_provider_name}-ebs-external-resizer-role
+  name: ebs-external-resizer-role-${suffix}
 subjects:
 - kind: ServiceAccount
-  name: ${node_provider_name}-ebs-csi-controller-sa
+  name: ebs-csi-controller-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-snapshotter-binding
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-snapshotter-binding-${suffix}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ${node_provider_name}-ebs-external-snapshotter-role
+  name: ebs-external-snapshotter-role-${suffix}
 subjects:
 - kind: ServiceAccount
-  name: ${node_provider_name}-ebs-csi-controller-sa
+  name: ebs-csi-controller-sa-${suffix}
   namespace: kube-system
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-controller
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-controller-${suffix}
   namespace: kube-system
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: ${node_provider_name}-ebs-csi-controller
-      app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+      app: ebs-csi-controller-${suffix}
+      app.kubernetes.io/name: ebs-csi-driver-${suffix}
   strategy:
     rollingUpdate:
       maxUnavailable: 1
@@ -434,8 +464,8 @@ spec:
   template:
     metadata:
       labels:
-        app: ${node_provider_name}-ebs-csi-controller
-        app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+        app: ebs-csi-controller-${suffix}
+        app.kubernetes.io/name: ebs-csi-driver-${suffix}
     spec:
       affinity:
         nodeAffinity:
@@ -457,7 +487,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - ${node_provider_name}-ebs-csi-controller
+                  - ebs-csi-controller-${suffix}
               topologyKey: kubernetes.io/hostname
             weight: 100
       containers:
@@ -695,7 +725,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: ${node_provider_name}-ebs-csi-controller-sa
+      serviceAccountName: ebs-csi-controller-sa-${suffix}
       tolerations:
       - key: CriticalAddonsOnly
         operator: Exists
@@ -712,35 +742,39 @@ spec:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-controller
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-controller-${suffix}
   namespace: kube-system
 spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      app: ${node_provider_name}-ebs-csi-controller
-      app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+      app: ebs-csi-controller-${suffix}
+      app.kubernetes.io/name: ebs-csi-driver-${suffix}
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
-    app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
-  name: ${node_provider_name}-ebs-csi-node
+    app.kubernetes.io/name: ebs-csi-driver-${suffix}
+  name: ebs-csi-node-${suffix}
   namespace: kube-system
 spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: ${node_provider_name}-ebs-csi-node
-      app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+      app: ebs-csi-node-${suffix}
+      app.kubernetes.io/name: ebs-csi-driver-${suffix}
   template:
     metadata:
       labels:
-        app: ${node_provider_name}-ebs-csi-node
-        app.kubernetes.io/name: ${node_provider_name}-ebs-csi-driver
+        app: ebs-csi-node-${suffix}
+        app.kubernetes.io/name: ebs-csi-driver-${suffix}
     spec:
       affinity:
         nodeAffinity:
@@ -888,7 +922,7 @@ spec:
         runAsGroup: 0
         runAsNonRoot: false
         runAsUser: 0
-      serviceAccountName: ${node_provider_name}-ebs-csi-node-sa
+      serviceAccountName: ebs-csi-node-sa-${suffix}
       terminationGracePeriodSeconds: 30
       tolerations:
       - operator: Exists
@@ -919,6 +953,8 @@ spec:
 apiVersion: storage.k8s.io/v1
 kind: CSIDriver
 metadata:
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
   labels:
     app.kubernetes.io/name: aws-ebs-csi-driver
   name: ebs.csi.aws.com
@@ -930,7 +966,9 @@ spec:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: ${node_provider_name}-ebs-default
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
+  name: ${node_provider_name}-disk-default
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
@@ -938,12 +976,3 @@ parameters:
   type: gp3
   encrypted: "true"
   csi.storage.k8s.io/fstype: xfs
-%{ if length(jsondecode(availability_zones)) > 0 ~}
-allowedTopologies:
-- matchLabelExpressions:
-  - key: topology.ebs.csi.aws.com/zone
-    values:
-%{ for az in jsondecode(availability_zones) ~}
-    - ${az}
-%{ endfor ~}
-%{ endif ~}

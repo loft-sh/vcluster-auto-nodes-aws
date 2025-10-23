@@ -1,7 +1,9 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicy
 metadata:
-  name: ${node_provider_name}-hostnetwork-allowed
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
+  name: hostnetwork-allowed-${suffix}
 spec:
   failurePolicy: Fail
   matchConstraints:
@@ -19,7 +21,9 @@ spec:
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
 metadata:
-  name: ${node_provider_name}-hostnetwork-allowed
+  annotations:
+    vcluster.loft.sh/node-provider: ${node_provider_name}
+  name: hostnetwork-allowed-${suffix}
 spec:
-  policyName: ${node_provider_name}-hostnetwork-allowed
+  policyName: hostnetwork-allowed-${suffix}
   validationActions: ["Deny"]

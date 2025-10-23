@@ -1,8 +1,3 @@
-output "vcluster_unique_name" {
-  description = "A vCluster name with computed random 4 bytes hex"
-  value       = local.vcluster_unique_name
-}
-
 output "private_subnet_ids" {
   description = "A list of private subnet ids"
   value       = module.vpc[local.region].private_subnets

@@ -1,20 +1,10 @@
-locals {
-  ccm_enabled    = try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), true)
-  ccm_lb_enabled = try(tobool(var.vcluster.properties["vcluster.com/ccm-lb-enabled"]), true)
-  csi_enabled    = try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), true)
-
-  availability_zones = nonsensitive(var.vcluster.nodeEnvironment.outputs.infrastructure["availability_zones"])
-
-  node_provider_name = nonsensitive(var.vcluster.nodeProvider.metadata.name)
-  vcluster_name      = nonsensitive(var.vcluster.instance.metadata.name)
-}
-
 module "kubernetes_apply_admission_policy" {
   source = "./apply"
 
   manifest_file = "${path.module}/manifests/admission-policy.yaml.tftpl"
   template_vars = {
     node_provider_name = local.node_provider_name
+    suffix             = local.suffix
   }
 }
 
@@ -28,6 +18,7 @@ module "kubernetes_apply_ccm" {
     node_provider_name = local.node_provider_name
     vcluster_name      = local.vcluster_name
     controllers        = local.ccm_lb_enabled ? "*" : "*,-service"
+    suffix             = local.suffix
   }
 }
 
@@ -40,5 +31,6 @@ module "kubernetes_apply_csi" {
   template_vars = {
     node_provider_name = local.node_provider_name
     availability_zones = jsonencode(local.availability_zones)
+    suffix             = local.suffix
   }
 }

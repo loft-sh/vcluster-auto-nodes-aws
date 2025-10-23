@@ -63,6 +63,6 @@ resource "aws_instance" "this" {
   iam_instance_profile = local.instance_profile_name
 
   tags = {
-    name = format("%s-worker-node", local.vcluster_unique_name)
+    name = format("%s-worker-node", local.vcluster_name)
   }
 }
