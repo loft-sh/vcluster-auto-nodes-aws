@@ -732,6 +732,9 @@ spec:
       - effect: NoExecute
         operator: Exists
         tolerationSeconds: 300
+      - key: karpenter.sh/unregistered
+        operator: "Exists"
+        effect: NoExecute
       - key: "vcluster.com/cleanup"
         operator: "Exists"
         effect: "NoExecute"

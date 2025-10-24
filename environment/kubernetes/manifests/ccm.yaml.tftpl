@@ -147,6 +147,7 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           effect: NoSchedule
         - key: karpenter.sh/unregistered
+          operator: "Exists"
           effect: NoExecute
         - key: node.kubernetes.io/not-ready
           effect: NoSchedule
