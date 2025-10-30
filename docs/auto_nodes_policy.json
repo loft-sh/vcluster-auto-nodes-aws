@@ -107,7 +107,11 @@
         "ec2:CreateVolume",
         "ec2:DetachVolume",
         "ec2:DeleteVolume",
-        "ec2:DescribeInstanceCreditSpecifications"
+        "ec2:DescribeInstanceCreditSpecifications",
+        "ec2:AssociateIamInstanceProfile",
+        "ec2:DisassociateIamInstanceProfile",
+        "ec2:ReplaceIamInstanceProfileAssociation",
+        "ec2:DescribeIamInstanceProfileAssociations"
       ],
       "Resource": "*"
     },
@@ -159,6 +163,44 @@
         "ec2:ReplaceNetworkAclEntry",
         "ec2:ReplaceNetworkAclAssociation",
         "ec2:DescribeNetworkAcls"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "IdentityAndAccessManagement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:PutRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:CreateInstanceProfile",
+        "iam:DeleteInstanceProfile",
+        "iam:ListInstanceProfilesForRole",
+        "iam:AddRoleToInstanceProfile",
+        "iam:RemoveRoleFromInstanceProfile",
+        "iam:GetInstanceProfile",
+        "iam:ListInstanceProfiles",
+        "iam:GetRole",
+        "iam:ListRoles",
+        "iam:ListAttachedRolePolicies",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:TagPolicy",
+        "iam:UntagPolicy",
+        "iam:TagInstanceProfile",
+        "iam:UntagInstanceProfile",
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:ListRolePolicies",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicyVersion",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions",
+        "iam:PassRole"
       ],
       "Resource": "*"
     }

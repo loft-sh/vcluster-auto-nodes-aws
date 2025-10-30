@@ -5,20 +5,16 @@
 ```yaml
 # vcluster.yaml
 controlPlane:
-  advanced:
-    cloudControllerManager:
-      enabled: false # disable vcluster CCM
   service:
     spec:
      type: LoadBalancer
-
 privateNodes:
   enabled: true
   autoNodes:
+  - provider: aws-ec2
     dynamic:
     - name: aws-cpu-nodes
-      provider: aws-ec2
-      requirements:
+      nodeTypeSelector:
       - property: instance-type
         operator: In
         values: ["t3.medium", "t3.large", "t3.xlarge"]
@@ -26,26 +22,44 @@ privateNodes:
 
 ## Overview
 
-Terraform modules for Auto Nodes on AWS to dynamically provision EC2 instances for vCluster Private Nodes using Karpenter.
+Terraform modules for provisioning **Auto Nodes on AWS**.  
+These modules dynamically create EC2 instances as vCluster Private Nodes, powered by **Karpenter**.
 
-- Dynamic provisioning - Nodes scale up/down based on pod requirements
-- Multi-cloud support: Works across public clouds, on-premises, and bare metal
-- Cost optimization - Only provision the exact resources needed
-- Simplified configuration - Define node requirements in your vcluster.yaml
+### Key Features
 
-This quickstart NodeProvider isolates all nodes into separate VPCs by default.
+- **Dynamic provisioning** – Nodes automatically scale up or down based on pod requirements  
+- **Multi-cloud support** – Run vCluster nodes across AWS, GCP, Azure, on-premises, or bare metal  
+  - CSI configuration in multi-cloud environments requires manual setup.
+- **Cost optimization** – Provision only the resources you actually need  
+- **Simple configuration** – Define node requirements directly in your `vcluster.yaml`  
 
-Per virtual cluster, it'll create (see [Environment](./environment/infrastructure)):
+By default, this quickstart **NodeProvider** isolates each vCluster into its own VPC.
 
-- A VPC
-- A public subnet in 2 AZs
-- A private subnet in 2 AZs
-- One NAT gateway attached to the private subnets
-- A security group for the worker nodes
+---
 
-Per virtual cluster, it'll create (see [Node](./node/)):
+## Resources Created Per Virtual Cluster
 
-- An EC2 instance with the selected `instance-type`, attached to one of the private Subnets
+### [Infrastructure](./environment/infrastructure)
+
+- A dedicated VPC  
+- Public subnets in two Availability Zones  
+- Private subnets in two Availability Zones  
+- A NAT gateway for the private subnets  
+- A security group for worker nodes  
+- An IAM instance profile for worker nodes  
+  - Permissions depend on whether CCM and CSI are enabled  
+
+### [Kubernetes](./environment/kubernetes)
+
+- Cloud Controller Manager for node initialization and automatic LoadBalancer creation  
+- EBS CSI driver with a default storage class  
+  - The default storage class does **not** enforce allowed topologies (important in multi-cloud setups). You can provide your own.  
+
+### [Nodes](./node/)
+
+- EC2 instances using the selected `instance-type`, attached to private subnets  
+
+---
 
 ## Getting started
 
@@ -104,23 +118,19 @@ This vcluster.yaml file defines a Private Node Virtual Cluster with Auto Nodes e
 ```yaml
 # vcluster.yaml
 controlPlane:
-  advanced:
-    cloudControllerManager:
-      enabled: false # disable vcluster CCM
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
     spec:
      type: LoadBalancer
-
 privateNodes:
   enabled: true
   autoNodes:
+  - provider: aws-ec2
     dynamic:
     - name: aws-cpu-nodes
-      provider: aws-ec2
-      requirements:
+      nodeTypeSelector:
       - property: instance-type
         operator: In
         values: ["t3.medium", "t3.large", "t3.xlarge"]
@@ -133,15 +143,93 @@ Create the virtual cluster through the vCluster Platform UI or the vCluster CLI:
 
  `vcluster platform create vcluster aws-private-nodes -f ./vcluster.yaml --project default`
 
-## Resource Cleanup Before Cluster Removal
+## Advanced configuration
 
-When decommissioning a cluster, it is important that all resources created by **Cloud Controller Manager (CCM)** and **Container Storage Interface (CSI)** are cleaned up manually.  
-This includes, but is not limited to:
+### NodeProvider configuration options
 
-- **CCM-managed resources**
-  - Services
+You can configure the **NodeProvider** with the following options:
 
-- **CSI-managed resources**
-  - PersistentVolumes (PVs)
+| Option                        | Default       | Description                                                                                 |
+| ----------------------------- | ------------- | ------------------------------------------------------------------------------------------- |
+| `vcluster.com/ccm-enabled`    | `true`        | Enables deployment of the Cloud Controller Manager.                                         |
+| `vcluster.com/ccm-lb-enabled` | `true`        | Enables the CCM service controller. If disabled, CCM will not create LoadBalancer services. |
+| `vcluster.com/csi-enabled`    | `true`        | Enables deployment of the CSI driver with a `<provider>-default-disk` storage class.                 |
+| `vcluster.com/vpc-cidr`       | `10.0.0.0/16` | Sets the VPC CIDR range. Useful in multi-cloud scenarios to avoid CIDR conflicts.           |
 
-Failure to perform this cleanup may result in **orphaned cloud resources**.
+## Example
+
+```yaml
+controlPlane:
+  service:
+    spec:
+     type: LoadBalancer
+privateNodes:
+  enabled: true
+  autoNodes:
+  - provider: aws-ec2
+    properties:
+      vcluster.com/ccm-lb-enabled: "false"
+      vcluster.com/csi-enabled: "false"
+      vcluster.com/vpc-cidr: "10.10.0.0/16"
+    dynamic:
+    - name: aws-cpu-nodes
+      nodeTypeSelector:
+      - property: instance-type
+        operator: In
+        values: ["t3.medium", "t3.large", "t3.xlarge"]
+```
+
+## Security considerations
+
+> **_NOTE:_** When deploying [Cloud Controller Manager (CCM)](https://kubernetes.io/docs/concepts/architecture/cloud-controller/) and [Container Storage Interface (CSI)](https://kubernetes.io/blog/2019/01/15/container-storage-interface-ga/) with Auto Nodes, permissions are granted through instance profiles.
+**This means all worker nodes inherit the same permissions as CCM and CSI.**
+As a result, **any pod running with host networking in the cluster could potentially access the same cloud permissions**.
+Refer to the full [list of permissions](environment/infrastructure/worker_iam.tf) for details.
+
+Cluster administrators should be aware of the following:
+
+- **Shared permissions** – all pods running in a **host network** may gain the same access level as CCM and CSI.  
+- **Mitigation** – **Host networking for pods is disabled by default.**. Alternatively, cluster administrators can disable CCM and CSI deployments.  
+  In that case, instance profiles will not be granted additional permissions.  
+  However, responsibility for deploying and securely configuring CCM and CSI will then fall to the cluster administrator.  
+
+> **_NOTE:_** Security-sensitive environments should carefully review which permissions are granted to clusters and consider whether CCM/CSI should be disabled and managed manually.
+
+## Limitations
+
+### Hybrid-cloud and multi-cloud
+
+When running a vCluster across multiple providers, some additional configuration is required:
+
+- **CSI drivers** – Install and configure the appropriate CSI driver for AWS cloud provider.  
+- **StorageClasses** – Use `allowedTopologies` to restrict provisioning to valid zones/regions.  
+- **NodePools** – Add topology-specific labels (e.g., `topology.ebs.csi.aws.com/zone`) so workloads are scheduled on nodes with matching storage availability.  
+
+For details on multi-cloud setup, see the [Deploy](https://www.vcluster.com/docs/vcluster/deploy/worker-nodes/private-nodes/auto-nodes/quick-start-templates#deploy) and [Limits](https://www.vcluster.com/docs/vcluster/deploy/worker-nodes/private-nodes/auto-nodes/quick-start-templates#hybrid-cloud-and-multi-cloud) vCluster documentation.
+
+#### Example: AWS Disk StorageClass with zones
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: aws-gp3
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: topology.ebs.csi.aws.com/zone
+        values: ["us-east-1a"]
+```
+
+### Region changes
+
+Changing the region of an existing node pool is not supported.
+To switch regions, create a new virtual cluster and migrate your workloads.
+
+### Dynamic nodes `Limit`
+
+When editing the limits property of dynamic nodes, any nodes that already exceed the new limit will **not** be removed automatically.
+Administrators are responsible for manually scaling down or deleting the excess nodes.
