@@ -30,7 +30,7 @@ module "validation" {
 
 resource "random_integer" "subnet_index" {
   min = 0
-  max = length(var.vcluster.nodeEnvironment.outputs["private_subnet_ids"]) - 1
+  max = length(locals.private_subnets) - 1
 }
 
 resource "aws_instance" "this" {
