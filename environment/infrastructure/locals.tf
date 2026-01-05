@@ -12,7 +12,7 @@ locals {
     format("kubernetes.io/cluster/%s", local.vcluster_name) = "owned"
   }
 
-  vpc_cidr_block = try(var.vcluster.properties["vcluster.com/vpc-cidr"], "10.0.0.0/16")
-  ccm_enabled    = try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), true)
-  csi_enabled    = try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), true)
+  vpc_cidr_block = nonsensitive(try(var.vcluster.properties["vcluster.com/vpc-cidr"], "10.0.0.0/16"))
+  ccm_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), true))
+  csi_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), true))
 }
