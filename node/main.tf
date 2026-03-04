@@ -1,6 +1,8 @@
-data "aws_ami" "ami" {
+# CPU nodes use Ubuntu 22.04 LTS
+data "aws_ami" "cpu" {
+  count       = local.is_gpu_node ? 0 : 1
   most_recent = true
-  owners      = ["099720109477"] # Canonical 
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
@@ -23,6 +25,37 @@ data "aws_ami" "ami" {
   }
 }
 
+# GPU nodes use Deep Learning Base AMI with pre-installed NVIDIA drivers
+data "aws_ami" "gpu" {
+  count       = local.is_gpu_node ? 1 : 0
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["Deep Learning Base OSS Nvidia Driver GPU AMI (Ubuntu 22.04) *"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+locals {
+  ami_id = local.is_gpu_node ? data.aws_ami.gpu[0].id : data.aws_ami.cpu[0].id
+}
+
 module "validation" {
   source = "./validation"
   region = var.vcluster.properties["region"]
@@ -34,7 +67,7 @@ resource "random_integer" "subnet_index" {
 }
 
 resource "aws_instance" "this" {
-  ami                         = data.aws_ami.ami.id
+  ami                         = local.ami_id
   instance_type               = local.instance_type
   subnet_id                   = local.subnet_id
   vpc_security_group_ids      = [local.security_group_id]
@@ -44,7 +77,7 @@ resource "aws_instance" "this" {
   associate_public_ip_address = false
 
   root_block_device {
-    volume_size           = 100
+    volume_size           = local.disk_size
     volume_type           = "gp3"
     delete_on_termination = true
     encrypted             = true

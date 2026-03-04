@@ -8,4 +8,11 @@ locals {
   user_data             = var.vcluster.userData != "" ? var.vcluster.userData : null
   instance_profile_name = nonsensitive(var.vcluster.nodeEnvironment.outputs.infrastructure["instance_profile_name"])
   cluster_tag           = nonsensitive(var.vcluster.nodeEnvironment.outputs.infrastructure["cluster_tag"])
+
+  # GPU properties from node type
+  disk_size = try(tonumber(nonsensitive(var.vcluster.nodeType.spec.properties["disk-size"])), 100)
+
+  # NVIDIA GPU instance families: p3 (V100), p4d/p4de (A100), p5/p5e (H100),
+  # g4dn (T4), g5 (A10G), g6/g6e (L4), gr6 (L4)
+  is_gpu_node = can(regex("^(p[3-6]|g4dn|g[5-6]|gr6)", local.instance_type))
 }
