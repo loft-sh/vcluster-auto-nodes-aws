@@ -56,3 +56,32 @@ spec:
       properties:
         instance-type: t3.2xlarge
         region: "us-east-1"
+    # GPU: NVIDIA T4
+    - name: g4dn.xlarge
+      resources:
+        cpu: "4"
+        memory: 16Gi
+        nvidia.com/gpu: "1"
+      properties:
+        instance-type: g4dn.xlarge
+        disk-size: "200"
+        region: "us-east-1"
+    - name: g4dn.2xlarge
+      resources:
+        cpu: "8"
+        memory: 32Gi
+        nvidia.com/gpu: "1"
+      properties:
+        instance-type: g4dn.2xlarge
+        disk-size: "200"
+        region: "us-east-1"
+    # GPU: NVIDIA A10G
+    - name: g5.xlarge
+      resources:
+        cpu: "4"
+        memory: 16Gi
+        nvidia.com/gpu: "1"
+      properties:
+        instance-type: g5.xlarge
+        disk-size: "200"
+        region: "us-east-1"

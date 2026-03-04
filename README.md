@@ -179,6 +179,49 @@ privateNodes:
         values: ["t3.medium", "t3.large", "t3.xlarge"]
 ```
 
+## GPU support
+
+Auto Nodes supports GPU-accelerated instances on AWS. GPU instance types are detected automatically by their family prefix and provisioned with a Deep Learning Base AMI that includes pre-installed NVIDIA drivers.
+
+### Supported GPU instance families
+
+| Family | GPU | Example |
+| ------ | --- | ------- |
+| p3 | NVIDIA V100 | `p3.2xlarge` |
+| p4d/p4de | NVIDIA A100 | `p4d.24xlarge` |
+| p5/p5e | NVIDIA H100 | `p5.48xlarge` |
+| g4dn | NVIDIA T4 | `g4dn.xlarge` |
+| g5 | NVIDIA A10G | `g5.xlarge` |
+| g6/g6e | NVIDIA L4 | `g6.xlarge` |
+
+```yaml
+privateNodes:
+  enabled: true
+  autoNodes:
+  - provider: aws-ec2
+    dynamic:
+    - name: aws-gpu-t4
+      nodeTypeSelector:
+      - property: instance-type
+        operator: In
+        values: ["g4dn.xlarge", "g4dn.2xlarge"]
+    - name: aws-gpu-a10g
+      nodeTypeSelector:
+      - property: instance-type
+        operator: In
+        values: ["g5.xlarge"]
+```
+
+### GPU node type properties
+
+| Property        | Required | Default | Description                                                  |
+| --------------- | -------- | ------- | ------------------------------------------------------------ |
+| `disk-size`     | No       | `100`   | Root volume size in GB. GPU workloads typically need 200+.   |
+
+### GPU nodes
+
+GPU nodes use an Amazon Deep Learning Base AMI with pre-installed NVIDIA drivers, so no separate driver installation is needed. Users are responsible for deploying their own GPU device plugin or GPU operator (e.g. NVIDIA GPU Operator) inside their vCluster to expose `nvidia.com/gpu` resources to the Kubernetes scheduler.
+
 ## Security considerations
 
 > **_NOTE:_** When deploying [Cloud Controller Manager (CCM)](https://kubernetes.io/docs/concepts/architecture/cloud-controller/) and [Container Storage Interface (CSI)](https://kubernetes.io/blog/2019/01/15/container-storage-interface-ga/) with Auto Nodes, permissions are granted through instance profiles.
