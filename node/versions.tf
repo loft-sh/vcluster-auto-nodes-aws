@@ -18,10 +18,10 @@ provider "aws" {
   default_tags {
     tags = merge(
       local.cluster_tag,
-      {
-        "vcluster:name"      = local.vcluster_name
-        "vcluster:namespace" = local.vcluster_namespace
-      }
+      var.vcluster.instance != null ? {
+        "vcluster:name"      = nonsensitive(var.vcluster.instance.metadata.name)
+        "vcluster:namespace" = nonsensitive(var.vcluster.instance.metadata.namespace)
+      } : {},
     )
   }
 }
