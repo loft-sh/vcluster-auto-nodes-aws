@@ -5,12 +5,8 @@ locals {
   public_subnets  = [for idx, az in local.azs : cidrsubnet(local.vpc_cidr_block, 8, idx)]
   private_subnets = [for idx, az in local.azs : cidrsubnet(local.vpc_cidr_block, 8, idx + length(local.azs))]
 
-  vcluster_name      = nonsensitive(var.vcluster.instance.metadata.name)
-  vcluster_namespace = nonsensitive(var.vcluster.instance.metadata.namespace)
-
-  cluster_tag = {
-    format("kubernetes.io/cluster/%s", local.vcluster_name) = "owned"
-  }
+  # The network environment is cluster-scoped and shared by every vCluster that uses it
+  network_environment_name = nonsensitive(var.vcluster.name)
 
   vpc_cidr_block = nonsensitive(try(var.vcluster.properties["vcluster.com/vpc-cidr"], "10.0.0.0/16"))
   ccm_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), true))
