@@ -29,13 +29,16 @@ resource "aws_security_group" "workers" {
     cidr_blocks = [local.vpc_cidr_block]
   }
 
-  # NodePort range (internal)
-  ingress {
-    description = "nodeport-range"
-    from_port   = 30000
-    to_port     = 32767
-    protocol    = "tcp"
-    cidr_blocks = [local.vpc_cidr_block]
+  # NodePort range (internal), used by CCM managed load balancers
+  dynamic "ingress" {
+    for_each = local.ccm_enabled ? [1] : []
+    content {
+      description = "nodeport-range"
+      from_port   = 30000
+      to_port     = 32767
+      protocol    = "tcp"
+      cidr_blocks = [local.vpc_cidr_block]
+    }
   }
 
   # SSH within VPC (admins should use bastion or restricted CIDR in production)

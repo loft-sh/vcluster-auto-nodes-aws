@@ -9,6 +9,6 @@ locals {
   network_environment_name = nonsensitive(var.vcluster.name)
 
   vpc_cidr_block = nonsensitive(try(var.vcluster.properties["vcluster.com/vpc-cidr"], "10.0.0.0/16"))
-  ccm_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), true))
-  csi_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), true))
+  ccm_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/ccm-enabled"]), false))
+  csi_enabled    = nonsensitive(try(tobool(var.vcluster.properties["vcluster.com/csi-enabled"]), false))
 }

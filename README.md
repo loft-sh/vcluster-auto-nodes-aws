@@ -1,4 +1,5 @@
 # vCluster Auto Nodes AWS
+# vCluster Auto Nodes AWS
 
 **td;dr**: I just need a `vcluster.yaml` to get started:
 
@@ -63,7 +64,9 @@ Shared resources are tagged with `vcluster:network-environment=<name>`. They do 
 ### [Nodes](./node/) (per vCluster)
 
 - EC2 instances using the selected `instance-type`, attached to private subnets  
-- Tagged with `kubernetes.io/cluster/<vcluster-name>=owned`, `vcluster:name` and `vcluster:namespace`  
+- Tagged with `kubernetes.io/cluster/<cluster-id>=owned`, `vcluster:name` and `vcluster:namespace`  
+
+The cluster ID is `<vcluster-name, first 40 characters>-<first 8 hex characters of md5("<vcluster-namespace>/<vcluster-name>")>`, because vCluster names are only unique within a namespace. If you deploy a Cloud Controller Manager, set its `--cluster-name` to this cluster ID.
 
 ---
 
@@ -157,8 +160,8 @@ You can configure the **NodeProvider** with the following options:
 
 | Option                        | Default       | Description                                                                                 |
 | ----------------------------- | ------------- | ------------------------------------------------------------------------------------------- |
-| `vcluster.com/ccm-enabled`    | `true`        | Grants worker nodes the IAM permissions required by the AWS Cloud Controller Manager.      |
-| `vcluster.com/csi-enabled`    | `true`        | Grants worker nodes the IAM permissions required by the EBS CSI driver.                    |
+| `vcluster.com/ccm-enabled`    | `false`        | Grants worker nodes the IAM permissions required by the AWS Cloud Controller Manager and opens the NodePort range (30000-32767) in the worker security group for load balancer traffic. |
+| `vcluster.com/csi-enabled`    | `false`        | Grants worker nodes the IAM permissions required by the EBS CSI driver.                    |
 | `vcluster.com/vpc-cidr`       | `10.0.0.0/16` | Sets the VPC CIDR range. Useful in multi-cloud scenarios to avoid CIDR conflicts.           |
 
 ## Example
